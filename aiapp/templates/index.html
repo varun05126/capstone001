@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Skill Mapper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 70%;
+            margin: auto;
+            margin-top: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        .card {
+            background: #fafafa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .btn {
+            padding: 8px 20px;
+            background: #0066ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .btn:hover {
+            background: #004ecc;
+        }
+        .placeholder {
+            color: #777;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>AI Skill Mapper</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input name="company" type="text" placeholder="Company" style="width:250px;padding:6px;"><br><br>
+        <input name="jobRole" type="text" placeholder="Job Role" style="width:250px;padding:6px;"><br><br>
+        <button class="btn" type="submit">Generate</button>
+    </form>
+
+    <hr>
+
+    {% if error %}
+    <div style="color:red;">Error: {{ error }}</div>
+    {% endif %}
+
+    <!-- ------------------------------------------------- -->
+    <!-- INDUSTRY SKILLS -->
+    <!-- ------------------------------------------------- -->
+    <h2>Industry Skills</h2>
+    <div class="card">
+        {% if not output %}
+            <p class="placeholder">Skills required in the industry for the selected company and job role.</p>
+        {% else %}
+            <ul>
+                {% for item in output.industrySkills %}
+                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- SCHOOL GAPS -->
+    <!-- ------------------------------------------------- -->
+    <h2>School Gaps</h2>
+    <div class="card">
+        {% if not output %}
+            <p class="placeholder">Common gaps students have compared to industry expectations.</p>
+        {% else %}
+            <ul>
+                {% for item in output.schoolGaps %}
+                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- BRIDGE TRAINING MODULES -->
+    <!-- ------------------------------------------------- -->
+    <h2>Bridge Training Modules</h2>
+    <div class="card">
+        {% if not output %}
+            <p class="placeholder">Courses or modules that students should take to cover missing skills.</p>
+        {% else %}
+            <ul>
+                {% for item in output.bridgeModules %}
+                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- EXPECTED STUDENT OUTCOMES -->
+    <!-- ------------------------------------------------- -->
+    <h2>Expected Student Outcomes</h2>
+    <div class="card">
+        {% if not output %}
+            <p class="placeholder">The abilities a student will gain after completing the learning path.</p>
+        {% else %}
+            <ul>
+                {% for item in output.expectedStudentOutcomes %}
+                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- SKILL FLOW -->
+    <!-- ------------------------------------------------- -->
+    <h2>Skill Flow</h2>
+    <div class="card">
+        {% if not output %}
+            <p class="placeholder">A step-by-step learning roadmap suggested by AI.</p>
+        {% else %}
+            <ul>
+                {% for item in output.flow %}
+                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- EXPLANATION -->
+    <!-- ------------------------------------------------- -->
+    <h2>Explanation</h2>
+    <div class="card">
+        {% if not output %}
+            <p class="placeholder">AI will explain how these skills align with your selected job role.</p>
+        {% else %}
+            <p>{{ output.explanation }}</p>
+        {% endif %}
+    </div>
+
+    <!-- ------------------------------------------------- -->
+    <!-- PDF BUTTON -->
+    <!-- ------------------------------------------------- -->
+    {% if output %}
+    <br>
+    <a class="btn" href="/download-pdf/?content={{ output|safe }}">Download PDF Report</a>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
