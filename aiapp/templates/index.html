@@ -1,172 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AI Skill Mapper</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 70%;
-            margin: auto;
-            margin-top: 40px;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-        }
-        h2 {
-            margin-top: 40px;
-        }
-        .card {
-            background: #fafafa;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 8px;
-        }
-        ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .btn {
-            padding: 8px 20px;
-            background: #0066ff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-        .btn:hover {
-            background: #004ecc;
-        }
-        .placeholder {
-            color: #777;
-            font-style: italic;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>EduBridge AI</title>
+
+<style>
+:root{
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --soft:#fafafa;
+    --text:#222;
+    --border:#e5e7eb;
+    --primary:#2563eb;
+}
+
+body.dark{
+    --bg:#0f172a;
+    --card:#020617;
+    --soft:#020617;
+    --text:#e5e7eb;
+    --border:#1e293b;
+    --primary:#38bdf8;
+}
+
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+    padding:40px 0;
+    transition:.3s;
+}
+
+.container{
+    width:75%;
+    max-width:1100px;
+    margin:auto;
+    background:var(--card);
+    padding:35px 45px;
+    border-radius:14px;
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+}
+
+h1{margin-bottom:6px}
+h2{margin-top:35px;font-size:20px}
+
+hr{
+    border:none;
+    height:1px;
+    background:var(--border);
+    margin:30px 0;
+}
+
+input{
+    width:320px;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+.btn{
+    padding:10px 22px;
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:500;
+}
+
+.card{
+    background:var(--soft);
+    padding:20px 24px;
+    border-radius:10px;
+    border:1px solid var(--border);
+}
+
+ul{padding-left:18px}
+li{margin-bottom:10px;line-height:1.6}
+
+.placeholder{
+    color:#6b7280;
+    font-style:italic;
+    max-width:720px;
+    line-height:1.5;
+}
+
+.error{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:12px;
+    border-radius:8px;
+}
+
+.loading{
+    display:none;
+    margin-top:20px;
+    color:var(--primary);
+    font-weight:500;
+}
+
+.top-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.toggle{
+    cursor:pointer;
+    font-size:14px;
+    opacity:.8;
+}
+
+.search{
+    margin-top:20px;
+    padding:8px 10px;
+    width:340px;
+}
+
+/* Career Overview */
+.overview{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.overview .row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(0,0,0,0.03);
+    padding:12px 16px;
+    border-radius:8px;
+}
+
+body.dark .overview .row{
+    background:rgba(255,255,255,0.05);
+}
+
+.overview .label{
+    font-size:14px;
+    opacity:.75;
+}
+
+.overview .value{
+    font-weight:500;
+}
+</style>
 </head>
 
 <body>
 <div class="container">
-    <h1>AI Skill Mapper</h1>
 
-    <form method="POST">
-        {% csrf_token %}
-        <input name="company" type="text" placeholder="Company" style="width:250px;padding:6px;"><br><br>
-        <input name="jobRole" type="text" placeholder="Job Role" style="width:250px;padding:6px;"><br><br>
-        <button class="btn" type="submit">Generate</button>
-    </form>
+<!-- HEADER -->
+<div class="top-actions">
+    <div>
+        <h1>EduBridge AI</h1>
+        <p class="placeholder">
+            Bridging secondary school learning with real-world industry careers through
+            AI-driven skill analysis, gap identification, and role comparison.
+        </p>
+    </div>
+    <div class="toggle" onclick="toggleDark()">🌙 Dark Mode</div>
+</div>
 
-    <hr>
+<!-- FORM -->
+<form method="POST" onsubmit="showLoading()">
+{% csrf_token %}
+<input name="company" placeholder="Target Company (e.g. Infosys, Google)" required><br><br>
+<input name="jobRole" placeholder="Primary Job Role (e.g. Data Analyst)" required><br><br>
+<input name="jobRoleCompare" placeholder="Compare With (optional role)"><br><br>
+<button class="btn">Generate Career Analysis</button>
+</form>
 
-    {% if error %}
-    <div style="color:red;">Error: {{ error }}</div>
+<div class="loading" id="loading">Generating AI-based career roadmap…</div>
+
+<input class="search" id="search" placeholder="Filter skills…" onkeyup="filterItems()">
+
+<hr>
+
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
+{% if output %}
+
+<!-- CAREER OVERVIEW -->
+<h2>Career Overview</h2>
+<div class="card overview">
+
+    {% if output.company %}
+    <div class="row">
+        <span class="label">🏢 Company</span>
+        <span class="value">{{ output.company }}</span>
+    </div>
     {% endif %}
 
-    <!-- ------------------------------------------------- -->
-    <!-- INDUSTRY SKILLS -->
-    <!-- ------------------------------------------------- -->
-    <h2>Industry Skills</h2>
-    <div class="card">
-        {% if not output %}
-            <p class="placeholder">Skills required in the industry for the selected company and job role.</p>
-        {% else %}
-            <ul>
-                {% for item in output.industrySkills %}
-                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+    {% if output.role1 %}
+    <div class="row">
+        <span class="label">🎯 Primary Role</span>
+        <span class="value">{{ output.role1 }}</span>
     </div>
+    {% endif %}
 
-    <!-- ------------------------------------------------- -->
-    <!-- SCHOOL GAPS -->
-    <!-- ------------------------------------------------- -->
-    <h2>School Gaps</h2>
-    <div class="card">
-        {% if not output %}
-            <p class="placeholder">Common gaps students have compared to industry expectations.</p>
-        {% else %}
-            <ul>
-                {% for item in output.schoolGaps %}
-                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+    {% if output.role2 %}
+    <div class="row">
+        <span class="label">🔁 Comparison Role</span>
+        <span class="value">{{ output.role2 }}</span>
     </div>
+    {% endif %}
 
-    <!-- ------------------------------------------------- -->
-    <!-- BRIDGE TRAINING MODULES -->
-    <!-- ------------------------------------------------- -->
-    <h2>Bridge Training Modules</h2>
-    <div class="card">
-        {% if not output %}
-            <p class="placeholder">Courses or modules that students should take to cover missing skills.</p>
-        {% else %}
-            <ul>
-                {% for item in output.bridgeModules %}
-                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+    {% if output.estimatedTime %}
+    <div class="row">
+        <span class="label">⏱ Preparation Time</span>
+        <span class="value">{{ output.estimatedTime }}</span>
     </div>
-
-    <!-- ------------------------------------------------- -->
-    <!-- EXPECTED STUDENT OUTCOMES -->
-    <!-- ------------------------------------------------- -->
-    <h2>Expected Student Outcomes</h2>
-    <div class="card">
-        {% if not output %}
-            <p class="placeholder">The abilities a student will gain after completing the learning path.</p>
-        {% else %}
-            <ul>
-                {% for item in output.expectedStudentOutcomes %}
-                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
-
-    <!-- ------------------------------------------------- -->
-    <!-- SKILL FLOW -->
-    <!-- ------------------------------------------------- -->
-    <h2>Skill Flow</h2>
-    <div class="card">
-        {% if not output %}
-            <p class="placeholder">A step-by-step learning roadmap suggested by AI.</p>
-        {% else %}
-            <ul>
-                {% for item in output.flow %}
-                    <li><b>{{ item.name }}</b> — {{ item.description }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
-
-    <!-- ------------------------------------------------- -->
-    <!-- EXPLANATION -->
-    <!-- ------------------------------------------------- -->
-    <h2>Explanation</h2>
-    <div class="card">
-        {% if not output %}
-            <p class="placeholder">AI will explain how these skills align with your selected job role.</p>
-        {% else %}
-            <p>{{ output.explanation }}</p>
-        {% endif %}
-    </div>
-
-    <!-- ------------------------------------------------- -->
-    <!-- PDF BUTTON -->
-    <!-- ------------------------------------------------- -->
-    {% if output %}
-    <br>
-    <a class="btn" href="/download-pdf/?content={{ output|safe }}">Download PDF Report</a>
     {% endif %}
 
 </div>
+
+<!-- COMMON SKILLS -->
+{% if output.commonSkills %}
+<h2>Common Skills (Both Roles)</h2>
+<div class="card list">
+<ul>
+{% for item in output.commonSkills %}
+    {% if item.name or item.description %}
+    <li>
+        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
+        {% if item.description %} — {{ item.description }}{% endif %}
+    </li>
+    {% endif %}
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+<!-- PRIMARY ROLE -->
+{% if output.role1Only %}
+<h2>{{ output.role1 }} – Core Industry Skills</h2>
+<div class="card list">
+<ul>
+{% for item in output.role1Only %}
+    {% if item.name or item.description %}
+    <li>
+        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
+        {% if item.description %} — {{ item.description }}{% endif %}
+    </li>
+    {% endif %}
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+<!-- COMPARISON ROLE -->
+{% if output.role2Only %}
+<h2>{{ output.role2 }} – Additional Skills Required</h2>
+<div class="card list">
+<ul>
+{% for item in output.role2Only %}
+    {% if item.name or item.description %}
+    <li>
+        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
+        {% if item.description %} — {{ item.description }}{% endif %}
+    </li>
+    {% endif %}
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+<!-- SCHOOL GAPS -->
+{% if output.schoolGaps %}
+<h2>Gaps in Secondary / Academic Curriculum</h2>
+<div class="card list">
+<ul>
+{% for item in output.schoolGaps %}
+    {% if item.name or item.description %}
+    <li>
+        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
+        {% if item.description %} — {{ item.description }}{% endif %}
+    </li>
+    {% endif %}
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+<!-- BRIDGE MODULES -->
+{% if output.bridgeModules %}
+<h2>Bridge Training Modules (School → Industry)</h2>
+<div class="card list">
+<ul>
+{% for item in output.bridgeModules %}
+    {% if item.name or item.description %}
+    <li>
+        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
+        {% if item.description %} — {{ item.description }}{% endif %}
+    </li>
+    {% endif %}
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+<!-- TRANSITION ADVICE -->
+{% if output.transitionAdvice %}
+<h2>Career Transition Advice</h2>
+<div class="card">
+<p>{{ output.transitionAdvice }}</p>
+</div>
+{% endif %}
+
+<a class="btn" href="/download-pdf/">Download Comparison PDF</a>
+
+{% endif %}
+
+</div>
+
+<script>
+function showLoading(){
+    document.getElementById("loading").style.display="block";
+}
+
+function toggleDark(){
+    document.body.classList.toggle("dark");
+}
+
+function filterItems(){
+    let q=document.getElementById("search").value.toLowerCase();
+    document.querySelectorAll(".list li").forEach(li=>{
+        li.style.display = li.innerText.toLowerCase().includes(q) ? "" : "none";
+    });
+}
+</script>
 
 </body>
 </html>
