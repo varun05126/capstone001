@@ -12,6 +12,7 @@
     --text:#222;
     --border:#e5e7eb;
     --primary:#2563eb;
+    --danger:#e63946;
 }
 
 body.dark{
@@ -67,6 +68,10 @@ input{
     border-radius:8px;
     cursor:pointer;
     font-weight:500;
+}
+
+.btn.reset{
+    background:var(--danger);
 }
 
 .card{
@@ -168,10 +173,21 @@ body.dark .overview .row{
 <!-- FORM -->
 <form method="POST" onsubmit="showLoading()">
 {% csrf_token %}
+
 <input name="company" placeholder="Target Company (e.g. Infosys, Google)" required><br><br>
 <input name="jobRole" placeholder="Primary Job Role (e.g. Data Analyst)" required><br><br>
 <input name="jobRoleCompare" placeholder="Compare With (optional role)"><br><br>
-<button class="btn">Generate Career Analysis</button>
+
+<div style="display:flex;gap:12px;margin-top:10px;">
+    <button class="btn" type="submit">
+        Generate Career Analysis
+    </button>
+
+    <!-- RESET BUTTON -->
+    <button class="btn reset" type="submit" name="action" value="reset">
+        Reset
+    </button>
+</div>
 </form>
 
 <div class="loading" id="loading">Generating AI-based career roadmap…</div>
@@ -226,12 +242,10 @@ body.dark .overview .row{
 <div class="card list">
 <ul>
 {% for item in output.commonSkills %}
-    {% if item.name or item.description %}
     <li>
         {% if item.name %}<b>{{ item.name }}</b>{% endif %}
         {% if item.description %} — {{ item.description }}{% endif %}
     </li>
-    {% endif %}
 {% endfor %}
 </ul>
 </div>
@@ -243,12 +257,10 @@ body.dark .overview .row{
 <div class="card list">
 <ul>
 {% for item in output.role1Only %}
-    {% if item.name or item.description %}
     <li>
         {% if item.name %}<b>{{ item.name }}</b>{% endif %}
         {% if item.description %} — {{ item.description }}{% endif %}
     </li>
-    {% endif %}
 {% endfor %}
 </ul>
 </div>
@@ -260,12 +272,10 @@ body.dark .overview .row{
 <div class="card list">
 <ul>
 {% for item in output.role2Only %}
-    {% if item.name or item.description %}
     <li>
         {% if item.name %}<b>{{ item.name }}</b>{% endif %}
         {% if item.description %} — {{ item.description }}{% endif %}
     </li>
-    {% endif %}
 {% endfor %}
 </ul>
 </div>
@@ -277,12 +287,10 @@ body.dark .overview .row{
 <div class="card list">
 <ul>
 {% for item in output.schoolGaps %}
-    {% if item.name or item.description %}
     <li>
         {% if item.name %}<b>{{ item.name }}</b>{% endif %}
         {% if item.description %} — {{ item.description }}{% endif %}
     </li>
-    {% endif %}
 {% endfor %}
 </ul>
 </div>
@@ -294,12 +302,10 @@ body.dark .overview .row{
 <div class="card list">
 <ul>
 {% for item in output.bridgeModules %}
-    {% if item.name or item.description %}
     <li>
         {% if item.name %}<b>{{ item.name }}</b>{% endif %}
         {% if item.description %} — {{ item.description }}{% endif %}
     </li>
-    {% endif %}
 {% endfor %}
 </ul>
 </div>
@@ -313,7 +319,7 @@ body.dark .overview .row{
 </div>
 {% endif %}
 
-<a class="btn" href="/download-pdf/">Download Comparison PDF</a>
+<a class="btn" href="/download/">Download Comparison PDF</a>
 
 {% endif %}
 
