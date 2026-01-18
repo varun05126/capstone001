@@ -1,13 +1,31 @@
 from pathlib import Path
 import os
 
+# --------------------------------------------------
+# Base
+# --------------------------------------------------
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# --------------------------------------------------
+# Security
+# --------------------------------------------------
 
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = False   # ❌ Debug OFF (production safe)
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "capstone001.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
+
+
+# --------------------------------------------------
+# Applications
+# --------------------------------------------------
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -16,8 +34,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
     "aiapp",
 ]
+
+
+# --------------------------------------------------
+# Middleware
+# --------------------------------------------------
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -28,7 +52,18 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
 ]
 
+
+# --------------------------------------------------
+# URLs / WSGI
+# --------------------------------------------------
+
 ROOT_URLCONF = "capstone001.urls"
+WSGI_APPLICATION = "capstone001.wsgi.application"
+
+
+# --------------------------------------------------
+# Templates
+# --------------------------------------------------
 
 TEMPLATES = [
     {
@@ -46,7 +81,10 @@ TEMPLATES = [
     }
 ]
 
-WSGI_APPLICATION = "capstone001.wsgi.application"
+
+# --------------------------------------------------
+# Database
+# --------------------------------------------------
 
 DATABASES = {
     "default": {
@@ -55,12 +93,27 @@ DATABASES = {
     }
 }
 
+
+# --------------------------------------------------
+# Internationalization
+# --------------------------------------------------
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True
 
+
+# --------------------------------------------------
+# Static files
+# --------------------------------------------------
+
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+# --------------------------------------------------
+# Default primary key
+# --------------------------------------------------
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
