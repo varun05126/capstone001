@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
 
-DEBUG = False   # ❌ Debug OFF (production safe)
+DEBUG = True   # ❌ Debug OFF (production safe)
 
 ALLOWED_HOSTS = [
     "capstone001.onrender.com",
