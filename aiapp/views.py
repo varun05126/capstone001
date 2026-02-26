@@ -3,19 +3,19 @@ import os
 import requests
 
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
 
 # ---------------------------------------------------
-# GROQ API KEY (ENV VARIABLE)
+# GROQ API KEY
 # ---------------------------------------------------
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 
 # ---------------------------------------------------
-# Helpers
+# HELPERS
 # ---------------------------------------------------
 def normalize_list(items):
     normalized = []
@@ -46,19 +46,59 @@ def extract_json(text):
 
 
 # ---------------------------------------------------
-# Main Page + AI Processing
+# MAIN VIEW
 # ---------------------------------------------------
 def home(request):
+
     output = None
     error = None
 
-    # If user refreshes, reuse last generated result
+    # -----------------------------------
+    # RESET HANDLER
+    # -----------------------------------
+    if request.method == "POST" and request.POST.get("action") == "reset":
+        request.session.clear()
+        return redirect("/")
+
+    # -----------------------------------
+    # SKILL READINESS CALCULATION
+    # -----------------------------------
+    if request.method == "POST" and request.POST.get("action") == "calculate":
+
+        output = request.session.get("output")
+
+        if not output:
+            return redirect("/")
+
+        skills = output.get("role1Skills", [])
+
+        total_score = 0
+        max_score = len(skills) * 3
+
+        for skill in skills:
+            value = request.POST.get(skill["name"])
+            if value:
+                total_score += int(value)
+
+        readiness_score = int((total_score / max_score) * 100) if max_score else 0
+
+        output["readinessScore"] = readiness_score
+        request.session["output"] = output
+
+        return render(request, "index.html", {"output": output})
+
+    # -----------------------------------
+    # RELOAD SESSION DATA
+    # -----------------------------------
     if request.method == "GET" and request.session.get("output"):
         return render(request, "index.html", {
             "output": request.session.get("output"),
             "error": None
         })
 
+    # -----------------------------------
+    # GENERATE AI CAREER PLAN
+    # -----------------------------------
     if request.method == "POST":
 
         if not GROQ_API_KEY:
@@ -78,42 +118,52 @@ def home(request):
             })
 
         prompt = f"""
-Return ONLY valid JSON. No markdown. No extra text.
+You are a professional career architect.
 
-Context:
-This system bridges secondary school education and industry expectations.
-Focus on practical, curriculum-aware skills (Indian education context).
+STRICT RULES:
+- Output ONLY valid JSON.
+- No markdown.
+- No explanations outside JSON.
+- Provide realistic career guidance.
+- Include detailed skill descriptions.
+- Include YouTube playlists.
+- Include GitHub project ideas.
+- Include internship suggestions.
+- Include salary progression.
+- readinessScore must be 0 (system calculates later).
 
 JSON FORMAT:
 {{
   "role1Skills": [
-    {{"name": "skill", "description": "short explanation", "level": "Beginner|Intermediate|Advanced"}}
-  ],
-  "role2Skills": [
-    {{"name": "skill", "description": "short explanation", "level": "Beginner|Intermediate|Advanced"}}
-  ],
-  "commonSkills": [
-    {{"name": "skill", "description": "why common to both"}}
-  ],
-  "role1Only": [
-    {{"name": "skill", "description": "specific to role 1"}}
-  ],
-  "role2Only": [
-    {{"name": "skill", "description": "additional skill needed for role 2"}}
+    {{"name": "", "description": "", "level": "Beginner|Intermediate|Advanced"}}
   ],
   "schoolGaps": [
-    {{"name": "gap", "description": "why school education misses this"}}
+    {{"name": "", "description": ""}}
   ],
   "bridgeModules": [
-    {{"name": "module", "description": "how this bridges school to industry"}}
+    {{"name": "", "description": ""}}
   ],
-  "estimatedTime": "example: 5–6 months",
-  "transitionAdvice": "short guidance paragraph"
+  "youtubePlaylists": [
+    {{"title": "", "url": ""}}
+  ],
+  "githubProjects": [
+    {{"title": "", "description": "", "url": ""}}
+  ],
+  "internships": [
+    {{"company": "", "role": "", "url": ""}}
+  ],
+  "salaryProgression": {{
+    "entry": "",
+    "mid": "",
+    "senior": ""
+  }},
+  "estimatedTime": "",
+  "transitionAdvice": ""
 }}
 
 Company: {company}
 Primary Role: {role1}
-Comparison Role: {role2}
+Comparison Role: {role2 if role2 else "None"}
 """
 
         try:
@@ -124,42 +174,53 @@ Comparison Role: {role2}
                     "Authorization": f"Bearer {GROQ_API_KEY}",
                 },
                 json={
-                    "model": "llama-3.1-8b-instant",
-                    "messages": [{"role": "user", "content": prompt}],
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": [
+                        {"role": "system", "content": "You are a strict JSON-only generator."},
+                        {"role": "user", "content": prompt}
+                    ],
                     "temperature": 0,
                 },
-                timeout=20
+                timeout=40
             )
 
             if response.status_code != 200:
-                raise ValueError("AI service error. Please try again later.")
+                raise ValueError(f"AI error: {response.status_code}")
 
             data = response.json()
+
+            if "choices" not in data or not data["choices"]:
+                raise ValueError("Invalid AI response structure.")
+
             ai_raw = data["choices"][0]["message"]["content"]
             ai_raw = ai_raw.replace("```json", "").replace("```", "").strip()
 
             json_text = extract_json(ai_raw)
+
             if not json_text:
-                raise ValueError("AI response format invalid. Please retry.")
+                raise ValueError("AI response format invalid.")
 
             parsed = json.loads(json_text)
 
             output = {
                 "company": company,
                 "role1": role1,
-                "role2": role2,
+                "role2": role2 if role2 else None,
 
                 "role1Skills": normalize_list(parsed.get("role1Skills", [])),
-                "role2Skills": normalize_list(parsed.get("role2Skills", [])),
-                "commonSkills": normalize_list(parsed.get("commonSkills", [])),
-                "role1Only": normalize_list(parsed.get("role1Only", [])),
-                "role2Only": normalize_list(parsed.get("role2Only", [])),
-
                 "schoolGaps": normalize_list(parsed.get("schoolGaps", [])),
                 "bridgeModules": normalize_list(parsed.get("bridgeModules", [])),
 
-                "estimatedTime": parsed.get("estimatedTime", "Not specified"),
+                "youtubePlaylists": parsed.get("youtubePlaylists", []),
+                "githubProjects": parsed.get("githubProjects", []),
+                "internships": parsed.get("internships", []),
+
+                "salaryProgression": parsed.get("salaryProgression", {}),
+                "estimatedTime": parsed.get("estimatedTime", ""),
                 "transitionAdvice": parsed.get("transitionAdvice", ""),
+
+                # IMPORTANT: No default 60%
+                "readinessScore": 0
             }
 
             request.session["output"] = output
@@ -176,16 +237,17 @@ Comparison Role: {role2}
 
 
 # ---------------------------------------------------
-# Structured PDF Generator
+# PDF GENERATOR
 # ---------------------------------------------------
 def download_pdf(request):
+
     output = request.session.get("output")
 
     if not output:
         return HttpResponse("No data available", status=400)
 
     response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = "attachment; filename=skill_comparison_report.pdf"
+    response["Content-Disposition"] = "attachment; filename=career_report.pdf"
 
     pdf = canvas.Canvas(response, pagesize=letter)
     width, height = letter
@@ -208,36 +270,20 @@ def download_pdf(request):
         y -= 16
 
     pdf.setFont("Helvetica-Bold", 16)
-    pdf.drawString(50, y, "AI Skill Mapper – Role Comparison Report")
+    pdf.drawString(50, y, "AI Career Readiness Report")
     y -= 30
 
     title(f"Company: {output['company']}")
     title(f"Primary Role: {output['role1']}")
-    title(f"Comparison Role: {output['role2']}")
-    title(f"Estimated Preparation Time: {output['estimatedTime']}")
+    title(f"Estimated Time: {output['estimatedTime']}")
 
-    title("Common Skills (Both Roles)")
-    for s in output["commonSkills"]:
-        line(f"- {s['name']}: {s['description']}")
-
-    title(f"{output['role1']} – Core Skills")
-    for s in output["role1Only"]:
+    title("Core Skills")
+    for s in output["role1Skills"]:
         line(f"- {s['name']} ({s['level']}): {s['description']}")
-
-    title(f"{output['role2']} – Additional Skills Needed")
-    for s in output["role2Only"]:
-        line(f"- {s['name']} ({s['level']}): {s['description']}")
-
-    title("School Gaps")
-    for g in output["schoolGaps"]:
-        line(f"- {g['name']}: {g['description']}")
-
-    title("Bridge Training Modules")
-    for m in output["bridgeModules"]:
-        line(f"- {m['name']}: {m['description']}")
 
     title("Transition Advice")
-    for part in output["transitionAdvice"].split(". "):
+    advice = output.get("transitionAdvice", "")
+    for part in advice.split(". "):
         line(part.strip())
 
     pdf.save()

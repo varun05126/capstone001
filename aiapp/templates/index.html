@@ -5,196 +5,224 @@
 <title>EduBridge AI</title>
 
 <style>
+
 :root{
-    --bg:#f4f6f8;
+    --bg:#f5f5f7;
     --card:#ffffff;
-    --soft:#fafafa;
-    --text:#222;
-    --border:#e5e7eb;
-    --primary:#2563eb;
-    --danger:#e63946;
+    --text:#1d1d1f;
+    --muted:#6e6e73;
+    --primary:#0071e3;
+    --border:#e5e5e7;
+    --danger:#d12c2c;
 }
 
-body.dark{
-    --bg:#0f172a;
-    --card:#020617;
-    --soft:#020617;
-    --text:#e5e7eb;
-    --border:#1e293b;
-    --primary:#38bdf8;
-}
-
+/* Base */
 body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
     background:var(--bg);
     color:var(--text);
-    margin:0;
-    padding:40px 0;
-    transition:.3s;
+    padding:60px 0;
 }
 
 .container{
-    width:75%;
-    max-width:1100px;
+    width:90%;
+    max-width:980px;
     margin:auto;
+}
+
+/* Header */
+.header{
+    margin-bottom:50px;
+}
+
+h1{
+    margin:0;
+    font-size:32px;
+    font-weight:600;
+    letter-spacing:-0.5px;
+}
+
+.subtitle{
+    margin-top:8px;
+    color:var(--muted);
+    font-size:15px;
+}
+
+/* Form */
+form{
     background:var(--card);
-    padding:35px 45px;
-    border-radius:14px;
-    box-shadow:0 10px 25px rgba(0,0,0,.05);
+    padding:30px;
+    border-radius:18px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.05);
+    margin-bottom:30px;
 }
 
-h1{margin-bottom:6px}
-h2{margin-top:35px;font-size:20px}
-
-hr{
-    border:none;
-    height:1px;
-    background:var(--border);
-    margin:30px 0;
-}
-
-input{
-    width:320px;
-    padding:10px 12px;
-    border-radius:8px;
-    border:1px solid #ccc;
-}
-
-.btn{
-    padding:10px 22px;
-    background:var(--primary);
-    color:#fff;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:500;
-}
-
-.btn.reset{
-    background:var(--danger);
-}
-
-.card{
-    background:var(--soft);
-    padding:20px 24px;
+input[type="text"]{
+    width:360px;
+    padding:12px 14px;
     border-radius:10px;
     border:1px solid var(--border);
+    margin-bottom:16px;
+    font-size:15px;
+    background:#fafafa;
 }
 
-ul{padding-left:18px}
-li{margin-bottom:10px;line-height:1.6}
-
-.placeholder{
-    color:#6b7280;
-    font-style:italic;
-    max-width:720px;
-    line-height:1.5;
+input[type="text"]:focus{
+    outline:none;
+    border-color:var(--primary);
+    background:#fff;
 }
 
-.error{
-    background:#fee2e2;
-    color:#991b1b;
-    padding:12px;
-    border-radius:8px;
-}
-
-.loading{
-    display:none;
-    margin-top:20px;
-    color:var(--primary);
+/* Buttons */
+button{
+    padding:12px 22px;
+    border:none;
+    border-radius:999px;
+    font-size:14px;
     font-weight:500;
-}
-
-.top-actions{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:15px;
-}
-
-.toggle{
     cursor:pointer;
-    font-size:14px;
-    opacity:.8;
 }
 
-.search{
-    margin-top:20px;
-    padding:8px 10px;
-    width:340px;
+.btn-primary{
+    background:var(--primary);
+    color:white;
 }
 
-/* Career Overview */
-.overview{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
+.btn-primary:hover{
+    opacity:0.9;
 }
 
-.overview .row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:rgba(0,0,0,0.03);
-    padding:12px 16px;
-    border-radius:8px;
+.btn-reset{
+    background:#e5e5ea;
+    color:#1d1d1f;
+    margin-left:10px;
 }
 
-body.dark .overview .row{
-    background:rgba(255,255,255,0.05);
+.btn-reset:hover{
+    background:#dcdce1;
 }
 
-.overview .label{
-    font-size:14px;
-    opacity:.75;
+/* Download Button Wrapper */
+.download-wrapper{
+    margin-top:40px;
+    text-align:left;
 }
 
-.overview .value{
+/* Download Button */
+.download-btn{
+    display:inline-block;
+    padding:14px 30px;
+    background:var(--primary);
+    color:#fff;
+    font-size:15px;
     font-weight:500;
+    border-radius:999px;
+    text-decoration:none;
+    transition:all 0.2s ease;
 }
+
+.download-btn:hover{
+    opacity:0.9;
+    transform:translateY(-1px);
+}
+
+/* Cards */
+.card{
+    background:var(--card);
+    padding:28px;
+    border-radius:18px;
+    margin-top:35px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.04);
+}
+
+.card h2{
+    margin-top:0;
+    font-size:20px;
+    font-weight:600;
+}
+
+/* Overview text */
+.overview p{
+    margin:6px 0;
+    color:var(--muted);
+}
+
+/* Score */
+.score{
+    font-size:72px;
+    font-weight:600;
+    letter-spacing:-2px;
+    margin:10px 0 0 0;
+    color:var(--primary);
+}
+
+/* Lists */
+ul{
+    padding-left:20px;
+}
+
+li{
+    margin-bottom:10px;
+    line-height:1.6;
+}
+
+/* Radio Group */
+.skill-option{
+    margin-top:8px;
+}
+
+.skill-option label{
+    margin-right:15px;
+    font-size:14px;
+}
+
+/* Links */
+a{
+    color:var(--primary);
+    text-decoration:none;
+}
+
+a:hover{
+    text-decoration:underline;
+}
+
+/* Error */
+.error{
+    margin-top:20px;
+    padding:14px;
+    background:#ffe5e5;
+    color:#a30000;
+    border-radius:12px;
+}
+
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
 <!-- HEADER -->
-<div class="top-actions">
-    <div>
-        <h1>EduBridge AI</h1>
-        <p class="placeholder">
-            Bridging secondary school learning with real-world industry careers through
-            AI-driven skill analysis, gap identification, and role comparison.
-        </p>
-    </div>
-    <div class="toggle" onclick="toggleDark()">🌙 Dark Mode</div>
+<div class="header">
+<h1>EduBridge AI</h1>
+<div class="subtitle">
+A platform bridging the gap between secondary education and real-world industry expectations.
+</div>
 </div>
 
 <!-- FORM -->
-<form method="POST" onsubmit="showLoading()">
+<form method="POST">
 {% csrf_token %}
 
-<input name="company" placeholder="Target Company (e.g. Infosys, Google)" required><br><br>
-<input name="jobRole" placeholder="Primary Job Role (e.g. Data Analyst)" required><br><br>
-<input name="jobRoleCompare" placeholder="Compare With (optional role)"><br><br>
+<input type="text" name="company" placeholder="Target Company (e.g. Apple)" required><br>
+<input type="text" name="jobRole" placeholder="Primary Role (e.g. Software Engineer)" required><br>
+<input type="text" name="jobRoleCompare" placeholder="Compare With (Optional)"><br>
 
-<div style="display:flex;gap:12px;margin-top:10px;">
-    <button class="btn" type="submit">
-        Generate Career Analysis
-    </button>
+<button class="btn-primary">Generate Career Plan</button>
+<button type="submit" name="action" value="reset" class="btn-reset">Reset</button>
 
-    <!-- RESET BUTTON -->
-    <button class="btn reset" type="submit" name="action" value="reset">
-        Reset
-    </button>
-</div>
 </form>
-
-<div class="loading" id="loading">Generating AI-based career roadmap…</div>
-
-<input class="search" id="search" placeholder="Filter skills…" onkeyup="filterItems()">
-
-<hr>
 
 {% if error %}
 <div class="error">{{ error }}</div>
@@ -202,145 +230,146 @@ body.dark .overview .row{
 
 {% if output %}
 
-<!-- CAREER OVERVIEW -->
-<h2>Career Overview</h2>
+<!-- OVERVIEW -->
 <div class="card overview">
-
-    {% if output.company %}
-    <div class="row">
-        <span class="label">🏢 Company</span>
-        <span class="value">{{ output.company }}</span>
-    </div>
-    {% endif %}
-
-    {% if output.role1 %}
-    <div class="row">
-        <span class="label">🎯 Primary Role</span>
-        <span class="value">{{ output.role1 }}</span>
-    </div>
-    {% endif %}
-
-    {% if output.role2 %}
-    <div class="row">
-        <span class="label">🔁 Comparison Role</span>
-        <span class="value">{{ output.role2 }}</span>
-    </div>
-    {% endif %}
-
-    {% if output.estimatedTime %}
-    <div class="row">
-        <span class="label">⏱ Preparation Time</span>
-        <span class="value">{{ output.estimatedTime }}</span>
-    </div>
-    {% endif %}
-
-</div>
-
-<!-- COMMON SKILLS -->
-{% if output.commonSkills %}
-<h2>Common Skills (Both Roles)</h2>
-<div class="card list">
-<ul>
-{% for item in output.commonSkills %}
-    <li>
-        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
-        {% if item.description %} — {{ item.description }}{% endif %}
-    </li>
-{% endfor %}
-</ul>
-</div>
+<h2>Career Overview</h2>
+<p><strong>Company:</strong> {{ output.company }}</p>
+<p><strong>Primary Role:</strong> {{ output.role1 }}</p>
+{% if output.role2 %}
+<p><strong>Comparison Role:</strong> {{ output.role2 }}</p>
 {% endif %}
-
-<!-- PRIMARY ROLE -->
-{% if output.role1Only %}
-<h2>{{ output.role1 }} – Core Industry Skills</h2>
-<div class="card list">
-<ul>
-{% for item in output.role1Only %}
-    <li>
-        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
-        {% if item.description %} — {{ item.description }}{% endif %}
-    </li>
-{% endfor %}
-</ul>
+<p><strong>Estimated Preparation Time:</strong> {{ output.estimatedTime }}</p>
 </div>
-{% endif %}
 
-<!-- COMPARISON ROLE -->
-{% if output.role2Only %}
-<h2>{{ output.role2 }} – Additional Skills Required</h2>
-<div class="card list">
-<ul>
-{% for item in output.role2Only %}
-    <li>
-        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
-        {% if item.description %} — {{ item.description }}{% endif %}
-    </li>
-{% endfor %}
-</ul>
-</div>
-{% endif %}
-
-<!-- SCHOOL GAPS -->
-{% if output.schoolGaps %}
-<h2>Gaps in Secondary / Academic Curriculum</h2>
-<div class="card list">
-<ul>
-{% for item in output.schoolGaps %}
-    <li>
-        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
-        {% if item.description %} — {{ item.description }}{% endif %}
-    </li>
-{% endfor %}
-</ul>
-</div>
-{% endif %}
-
-<!-- BRIDGE MODULES -->
-{% if output.bridgeModules %}
-<h2>Bridge Training Modules (School → Industry)</h2>
-<div class="card list">
-<ul>
-{% for item in output.bridgeModules %}
-    <li>
-        {% if item.name %}<b>{{ item.name }}</b>{% endif %}
-        {% if item.description %} — {{ item.description }}{% endif %}
-    </li>
-{% endfor %}
-</ul>
-</div>
-{% endif %}
-
-<!-- TRANSITION ADVICE -->
-{% if output.transitionAdvice %}
-<h2>Career Transition Advice</h2>
+<!-- SKILL SELF-ASSESSMENT -->
 <div class="card">
+<h2>Skill Self Assessment</h2>
+
+<form method="POST">
+{% csrf_token %}
+<input type="hidden" name="action" value="calculate">
+
+{% for skill in output.role1Skills %}
+<div style="margin-bottom:20px;">
+    <strong>{{ skill.name }}</strong><br>
+    <span style="color:var(--muted); font-size:14px;">
+        {{ skill.description }}
+    </span>
+
+    <div class="skill-option">
+        <label><input type="radio" name="{{ skill.name }}" value="0" required> Don’t know</label>
+        <label><input type="radio" name="{{ skill.name }}" value="1"> Beginner</label>
+        <label><input type="radio" name="{{ skill.name }}" value="2"> Intermediate</label>
+        <label><input type="radio" name="{{ skill.name }}" value="3"> Advanced</label>
+    </div>
+</div>
+{% endfor %}
+
+<button class="btn-primary">Evaluate Readiness</button>
+</form>
+</div>
+
+<!-- READINESS SCORE -->
+{% if output.readinessScore and output.readinessScore > 0 %}
+<div class="card">
+<h2>Readiness Score</h2>
+<div class="score">{{ output.readinessScore }}%</div>
+</div>
+{% endif %}
+
+<!-- CORE SKILLS -->
+<div class="card">
+<h2>Core Skills</h2>
+<ul>
+{% for skill in output.role1Skills %}
+<li>
+<strong>{{ skill.name }}</strong> ({{ skill.level }}) — {{ skill.description }}
+</li>
+{% endfor %}
+</ul>
+</div>
+
+<!-- ACADEMIC GAPS -->
+<div class="card">
+<h2>Academic Gaps Identified</h2>
+{% for gap in output.schoolGaps %}
+<div style="margin-bottom:15px;">
+<strong style="color:var(--danger);">{{ gap.name }}</strong><br>
+<span style="color:var(--muted);">{{ gap.description }}</span>
+</div>
+{% endfor %}
+</div>
+
+<!-- TRAINING MODULES -->
+<div class="card">
+<h2>Recommended Training Modules</h2>
+<ul>
+{% for module in output.bridgeModules %}
+<li><strong>{{ module.name }}</strong> — {{ module.description }}</li>
+{% endfor %}
+</ul>
+</div>
+
+<!-- YOUTUBE -->
+<div class="card">
+<h2>Curated Learning</h2>
+<ul>
+{% for yt in output.youtubePlaylists %}
+<li><a href="{{ yt.url }}" target="_blank">{{ yt.title }}</a></li>
+{% endfor %}
+</ul>
+</div>
+
+<!-- GITHUB -->
+<div class="card">
+<h2>GitHub Project Ideas</h2>
+<ul>
+{% for project in output.githubProjects %}
+<li>
+<strong>{{ project.title }}</strong><br>
+{{ project.description }}<br>
+<a href="{{ project.url }}" target="_blank">View Repository</a>
+</li>
+{% endfor %}
+</ul>
+</div>
+
+<!-- INTERNSHIPS -->
+<div class="card">
+<h2>Internship Suggestions</h2>
+<ul>
+{% for internship in output.internships %}
+<li>
+<strong>{{ internship.company }}</strong> – {{ internship.role }}<br>
+<a href="{{ internship.url }}" target="_blank">Apply Here</a>
+</li>
+{% endfor %}
+</ul>
+</div>
+
+<!-- SALARY -->
+<div class="card">
+<h2>Salary Progression</h2>
+<p><strong>Entry Level:</strong> {{ output.salaryProgression.entry }}</p>
+<p><strong>Mid Level:</strong> {{ output.salaryProgression.mid }}</p>
+<p><strong>Senior Level:</strong> {{ output.salaryProgression.senior }}</p>
+</div>
+
+<!-- TRANSITION -->
+<div class="card">
+<h2>Career Transition Advice</h2>
 <p>{{ output.transitionAdvice }}</p>
 </div>
-{% endif %}
 
-<a class="btn" href="/download/">Download Comparison PDF</a>
+<div class="download-wrapper">
+    <a href="/download/" class="download-btn">
+        Download PDF Report
+    </a>
+</div>
 
 {% endif %}
 
 </div>
-
-<script>
-function showLoading(){
-    document.getElementById("loading").style.display="block";
-}
-
-function toggleDark(){
-    document.body.classList.toggle("dark");
-}
-
-function filterItems(){
-    let q=document.getElementById("search").value.toLowerCase();
-    document.querySelectorAll(".list li").forEach(li=>{
-        li.style.display = li.innerText.toLowerCase().includes(q) ? "" : "none";
-    });
-}
-</script>
 
 </body>
 </html>
