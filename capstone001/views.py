@@ -2,6 +2,7 @@ import json
 import os
 import requests
 
+from django.contrib.auth import logout
 from django.http import HttpResponse
 from django.shortcuts import render
 from reportlab.pdfgen import canvas
@@ -225,3 +226,5 @@ def download_pdf(request):
 
     pdf.save()
     return response
+
+
