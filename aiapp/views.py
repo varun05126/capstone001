@@ -2,11 +2,14 @@ import json
 import os
 import requests
 
+
+from django.contrib.auth import logout
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-
+from .models import StudentProfile
+from django.contrib.auth.decorators import login_required
 
 # ---------------------------------------------------
 # GROQ API KEY
@@ -46,20 +49,22 @@ def extract_json(text):
 
 
 # ---------------------------------------------------
-# MAIN VIEW
+# HOME PAGE (AI CAREER PLANNER)
 # ---------------------------------------------------
+@login_required
 def home(request):
 
     output = None
     error = None
 
     # -----------------------------------
-    # RESET HANDLER
+    # RESET
     # -----------------------------------
     if request.method == "POST" and request.POST.get("action") == "reset":
-        request.session.clear()
+        if "output" in request.session:
+            del request.session["output"]
         return redirect("/")
-
+    
     # -----------------------------------
     # SKILL READINESS CALCULATION
     # -----------------------------------
@@ -202,6 +207,79 @@ Comparison Role: {role2 if role2 else "None"}
 
             parsed = json.loads(json_text)
 
+            # ---------------------------------------------------
+            # FALLBACK RESOURCES (YouTube + GitHub + Internships)
+            # ---------------------------------------------------
+
+            youtube_playlists = parsed.get("youtubePlaylists") or []
+            github_projects = parsed.get("githubProjects") or []
+            internships = parsed.get("internships") or []
+
+            role_keyword = role1.replace(" ", "+")
+
+            # -----------------------------------
+            # Fallback YouTube playlists
+            # -----------------------------------
+            if len(youtube_playlists) == 0:
+                youtube_playlists = [
+                    {
+                        "title": f"{role1} Full Course",
+                        "url": f"https://www.youtube.com/results?search_query={role_keyword}+full+course"
+                    },
+                    {
+                        "title": f"{role1} Roadmap",
+                        "url": f"https://www.youtube.com/results?search_query={role_keyword}+roadmap"
+                    },
+                    {
+                        "title": f"{role1} Projects",
+                        "url": f"https://www.youtube.com/results?search_query={role_keyword}+projects"
+                    }
+                ]
+
+            # -----------------------------------
+            # Fallback GitHub projects
+            # -----------------------------------
+            if len(github_projects) == 0:
+                github_projects = [
+                    {
+                        "title": f"{role1} Portfolio Project",
+                        "description": f"A complete beginner to advanced {role1} project.",
+                        "url": f"https://github.com/search?q={role_keyword}+project"
+                    },
+                    {
+                        "title": f"{role1} Practice Repository",
+                        "description": f"Practice problems and exercises related to {role1}.",
+                        "url": f"https://github.com/search?q={role_keyword}+practice"
+                    },
+                    {
+                        "title": f"{role1} Real World Application",
+                        "description": f"Build a real-world application related to {role1}.",
+                        "url": f"https://github.com/search?q={role_keyword}+app"
+                    }
+                ]
+
+            # -----------------------------------
+            # Fallback internships
+            # -----------------------------------
+            if len(internships) == 0:
+                internships = [
+                    {
+                        "company": "Google",
+                        "role": "Student Intern",
+                        "url": "https://careers.google.com"
+                    },
+                    {
+                        "company": "Microsoft",
+                        "role": "Student Intern",
+                        "url": "https://careers.microsoft.com"
+                    },
+                    {
+                        "company": "Amazon",
+                        "role": "SDE Intern",
+                        "url": "https://amazon.jobs"
+                    }
+                ]
+
             output = {
                 "company": company,
                 "role1": role1,
@@ -211,9 +289,9 @@ Comparison Role: {role2 if role2 else "None"}
                 "schoolGaps": normalize_list(parsed.get("schoolGaps", [])),
                 "bridgeModules": normalize_list(parsed.get("bridgeModules", [])),
 
-                "youtubePlaylists": parsed.get("youtubePlaylists", []),
-                "githubProjects": parsed.get("githubProjects", []),
-                "internships": parsed.get("internships", []),
+                "youtubePlaylists": youtube_playlists,
+                "githubProjects": github_projects,
+                "internships": internships,
 
                 "salaryProgression": parsed.get("salaryProgression", {}),
                 "estimatedTime": parsed.get("estimatedTime", ""),
@@ -288,3 +366,84 @@ def download_pdf(request):
 
     pdf.save()
     return response
+
+@login_required
+def profile(request):
+
+    profile = StudentProfile.objects.filter(user=request.user).first()
+
+    if request.method == "POST":
+
+        # Save Career Path
+        if "career_company" in request.POST:
+
+            company = request.POST.get("career_company")
+            role = request.POST.get("career_role")
+
+            if profile:
+                profile.target_company = company
+                profile.target_role = role
+                profile.save()
+
+            return redirect("/profile/")
+
+
+        # Save Profile Details
+        grade = request.POST.get("grade")
+        school = request.POST.get("school")
+
+        github = request.POST.get("github")
+        leetcode = request.POST.get("leetcode")
+        codechef = request.POST.get("codechef")
+        hackerrank = request.POST.get("hackerrank")
+
+        profile, created = StudentProfile.objects.update_or_create(
+            user=request.user,
+            defaults={
+                "grade": grade,
+                "school": school,
+                "github": github,
+                "leetcode": leetcode,
+                "codechef": codechef,
+                "hackerrank": hackerrank
+            }
+        )
+
+        # 🔹 Redirect to home page after saving
+        return redirect("/")
+
+    return render(request, "profile.html", {
+        "profile": profile
+    })
+
+
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+def logout_user(request):
+    logout(request)
+    return redirect("/login/")
+
+from django.contrib.auth.models import User
+from django.contrib import messages
+
+def signup(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        if User.objects.filter(username=username).exists():
+            return render(request, "signup.html", {
+                "error": "Username already exists"
+            })
+
+        User.objects.create_user(
+            username=username,
+            password=password
+        )
+
+        return redirect("/login/")
+
+    return render(request, "signup.html")
