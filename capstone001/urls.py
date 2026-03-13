@@ -1,13 +1,12 @@
 from django.contrib import admin
 from django.urls import path
-from aiapp.views import home, download_pdf
+from django.contrib.auth.views import LoginView
+from aiapp.views import home, download_pdf, profile, logout_user, signup
 from django.http import HttpResponse
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# ---- Files for Google & SEO ----
 
 def robots_txt(request):
     return HttpResponse(
@@ -28,17 +27,24 @@ def google_verify(request):
     )
 
 
-# ---- URL patterns ----
-
 urlpatterns = [
+
     path("admin/", admin.site.urls),
 
-    # SEO / Google files
     path("robots.txt", robots_txt),
     path("sitemap.xml", sitemap_xml),
     path("googleb5949ab1058f2676.html", google_verify),
 
-    # App routes
+    path("signup/", signup, name="signup"),
+
+    path("login/", LoginView.as_view(template_name="login.html"), name="login"),
+
+    path("logout/", logout_user, name="logout"),
+
     path("", home, name="home"),
+
+    path("profile/", profile, name="profile"),
+
     path("download/", download_pdf, name="download_pdf"),
+
 ]
