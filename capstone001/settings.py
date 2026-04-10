@@ -4,17 +4,15 @@ import os
 # --------------------------------------------------
 # Base
 # --------------------------------------------------
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # --------------------------------------------------
 # Security
 # --------------------------------------------------
-
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
 
-DEBUG = True   # ❌ Debug OFF (production safe)
+DEBUG = True  # Change to False in production
 
 ALLOWED_HOSTS = [
     "capstone001.onrender.com",
@@ -26,10 +24,9 @@ ALLOWED_HOSTS = [
 # --------------------------------------------------
 # Applications
 # --------------------------------------------------
-
 INSTALLED_APPS = [
     "django.contrib.admin",
-    "django.contrib.auth",
+    "django.contrib.auth",          # required by Django
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -42,13 +39,15 @@ INSTALLED_APPS = [
 # --------------------------------------------------
 # Middleware
 # --------------------------------------------------
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+
+    # Safe to keep even without login
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+
     "django.contrib.messages.middleware.MessageMiddleware",
 ]
 
@@ -56,7 +55,6 @@ MIDDLEWARE = [
 # --------------------------------------------------
 # URLs / WSGI
 # --------------------------------------------------
-
 ROOT_URLCONF = "capstone001.urls"
 WSGI_APPLICATION = "capstone001.wsgi.application"
 
@@ -64,7 +62,6 @@ WSGI_APPLICATION = "capstone001.wsgi.application"
 # --------------------------------------------------
 # Templates
 # --------------------------------------------------
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -74,7 +71,10 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
+
+                # Optional (doesn't harm)
                 "django.contrib.auth.context_processors.auth",
+
                 "django.contrib.messages.context_processors.messages",
             ],
         },
@@ -85,7 +85,6 @@ TEMPLATES = [
 # --------------------------------------------------
 # Database
 # --------------------------------------------------
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -97,7 +96,6 @@ DATABASES = {
 # --------------------------------------------------
 # Internationalization
 # --------------------------------------------------
-
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
@@ -107,7 +105,6 @@ USE_TZ = True
 # --------------------------------------------------
 # Static files
 # --------------------------------------------------
-
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
@@ -115,11 +112,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # --------------------------------------------------
 # Default primary key
 # --------------------------------------------------
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-LOGIN_URL = "/login/"
-LOGIN_REDIRECT_URL = "/profile/"
-LOGOUT_REDIRECT_URL = "/login/"
+# --------------------------------------------------
+# Deployment (Render / HTTPS)
+# --------------------------------------------------
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

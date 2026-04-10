@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django.urls import path
-from django.contrib.auth.views import LoginView
-from aiapp.views import home, download_pdf, profile, logout_user, signup
 from django.http import HttpResponse
 from pathlib import Path
 
+from aiapp.views import home, download_pdf
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+# ------------------ STATIC FILE HANDLERS ------------------
 
 def robots_txt(request):
     return HttpResponse(
@@ -14,11 +16,13 @@ def robots_txt(request):
         content_type="text/plain"
     )
 
+
 def sitemap_xml(request):
     return HttpResponse(
         (BASE_DIR / "sitemap.xml").read_text(),
         content_type="application/xml"
     )
+
 
 def google_verify(request):
     return HttpResponse(
@@ -27,24 +31,19 @@ def google_verify(request):
     )
 
 
+# ------------------ URL PATTERNS ------------------
+
 urlpatterns = [
 
+    # Admin
     path("admin/", admin.site.urls),
 
+    # SEO / Verification
     path("robots.txt", robots_txt),
     path("sitemap.xml", sitemap_xml),
     path("googleb5949ab1058f2676.html", google_verify),
 
-    path("signup/", signup, name="signup"),
-
-    path("login/", LoginView.as_view(template_name="login.html"), name="login"),
-
-    path("logout/", logout_user, name="logout"),
-
+    # Main App
     path("", home, name="home"),
-
-    path("profile/", profile, name="profile"),
-
     path("download/", download_pdf, name="download_pdf"),
-
 ]
