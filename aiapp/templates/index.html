@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>EduBridge</title>
+<title>EduBridge AI</title>
 
 <style>
-
 :root{
     --bg:#f5f5f7;
     --card:#ffffff;
@@ -13,124 +12,57 @@
     --muted:#6e6e73;
     --primary:#0071e3;
     --border:#e5e5e7;
-    --danger:#d12c2c;
 }
 
 body{
     margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+    font-family:-apple-system,Arial;
     background:var(--bg);
     color:var(--text);
-    padding:60px 0;
 }
 
 .container{
     width:90%;
-    max-width:980px;
+    max-width:950px;
     margin:auto;
-}
-
-.header{
-    margin-bottom:50px;
-}
-
-h1{
-    margin:0;
-    font-size:32px;
-    font-weight:600;
-}
-
-.subtitle{
-    margin-top:8px;
-    color:var(--muted);
-}
-
-.nav{
-    margin-bottom:30px;
-}
-
-.nav a{
-    margin-right:15px;
-    text-decoration:none;
-    color:var(--primary);
-}
-
-form{
-    background:var(--card);
-    padding:30px;
-    border-radius:18px;
-    box-shadow:0 8px 30px rgba(0,0,0,0.05);
-    margin-bottom:30px;
-}
-
-input[type="text"]{
-    width:360px;
-    padding:12px;
-    border-radius:10px;
-    border:1px solid var(--border);
-    margin-bottom:16px;
-}
-
-button{
-    padding:12px 22px;
-    border:none;
-    border-radius:999px;
-    cursor:pointer;
-}
-
-.btn-primary{
-    background:var(--primary);
-    color:white;
-}
-
-.btn-reset{
-    background:#e5e5ea;
-    margin-left:10px;
+    padding:40px 0;
 }
 
 .card{
     background:var(--card);
-    padding:28px;
-    border-radius:18px;
-    margin-top:35px;
-    box-shadow:0 8px 30px rgba(0,0,0,0.04);
+    padding:25px;
+    border-radius:16px;
+    margin-bottom:25px;
+    box-shadow:0 6px 25px rgba(0,0,0,0.05);
 }
 
+h1{margin-bottom:5px;}
+.subtitle{color:var(--muted); margin-bottom:25px;}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:10px;
+    border:1px solid var(--border);
+}
+
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+}
+
+.primary{background:var(--primary); color:white;}
+.secondary{background:#e5e5ea;}
+
 .score{
-    font-size:72px;
-    font-weight:600;
+    font-size:60px;
     color:var(--primary);
 }
 
-ul{
-    padding-left:20px;
-}
-
-li{
-    margin-bottom:10px;
-}
-
-.error{
-    margin-top:20px;
-    padding:14px;
-    background:#ffe5e5;
-    color:#a30000;
-    border-radius:12px;
-}
-
-.download-wrapper{
-    margin-top:40px;
-}
-
-.download-btn{
-    display:inline-block;
-    padding:14px 30px;
-    background:var(--primary);
-    color:#fff;
-    border-radius:999px;
-    text-decoration:none;
-}
-
+a{color:var(--primary); text-decoration:none;}
 </style>
 </head>
 
@@ -138,171 +70,144 @@ li{
 
 <div class="container">
 
-<div class="header">
 <h1>EduBridge AI</h1>
-<div class="subtitle">
-A platform bridging the gap between secondary education and real-world industry expectations.
-</div>
-</div>
+<div class="subtitle">Plan your journey from school to career 🚀</div>
 
-<div class="nav">
-<a href="/">Home</a>
-<a href="/profile/">Profile</a>
-<a href="/logout/">Logout</a>
-</div>
-
-<form method="POST">
+<!-- FORM -->
+<form method="POST" class="card">
 {% csrf_token %}
 
-<input type="text" name="company" placeholder="Target Company (e.g. Apple)" required><br>
+<input type="text" name="company" placeholder="Target Company" required>
+<input type="text" name="jobRole" placeholder="Target Role" required>
+<input type="text" name="studentClass" placeholder="Your Class (8-10)" required>
 
-<input type="text" name="jobRole" placeholder="Primary Role (e.g. Software Engineer)" required><br>
-
-<input type="text" name="jobRoleCompare" placeholder="Compare With (Optional)"><br>
-
-<button class="btn-primary">Generate Career Plan</button>
-
-<button type="submit" name="action" value="reset" class="btn-reset">Reset</button>
+<button class="primary">Generate Plan</button>
+<button name="action" value="reset" class="secondary">Reset</button>
 
 </form>
-
-{% if error %}
-<div class="error">{{ error }}</div>
-{% endif %}
 
 {% if output %}
 
+<!-- OVERVIEW -->
 <div class="card">
-
 <h2>Career Overview</h2>
 
 <p><strong>Company:</strong> {{ output.company }}</p>
-<p><strong>Primary Role:</strong> {{ output.role1 }}</p>
+<p><strong>Role:</strong> {{ output.role1 }}</p>
 
-{% if output.role2 %}
-<p><strong>Comparison Role:</strong> {{ output.role2 }}</p>
-{% endif %}
+<p>
+<strong>Estimated Time:</strong> {{ output.estimatedTime }}<br>
+<span style="color:#6e6e73;">
+This plan builds strong fundamentals step-by-step.
+</span>
+</p>
+</div>
 
-<p><strong>Estimated Preparation Time:</strong> {{ output.estimatedTime }}</p>
+<!-- ROADMAP -->
+<div class="card">
+<h2>Your Learning Journey</h2>
 
-<form method="POST" action="/profile/">
-{% csrf_token %}
-<input type="hidden" name="career_company" value="{{ output.company }}">
-<input type="hidden" name="career_role" value="{{ output.role1 }}">
+<div style="border-left:3px solid #0071e3; padding-left:20px;">
 
-<button class="btn-primary">
-Add Career Path to Your Profile
-</button>
+{% for year in output.roadmap %}
+<div style="margin-bottom:25px; position:relative;">
 
-</form>
+<div style="
+position:absolute;
+left:-28px;
+top:5px;
+width:12px;
+height:12px;
+background:#0071e3;
+border-radius:50%;
+"></div>
+
+<div style="background:#f9f9fb; padding:15px; border-radius:12px;">
+<strong>📘 Class {{ year.class }}</strong>
+
+<ul>
+{% for skill in year.skills %}
+<li>✔ {{ skill }}</li>
+{% endfor %}
+</ul>
 
 </div>
 
+</div>
+{% endfor %}
 
-<div class="card" id="assessmentCard"
-{% if output.readinessScore %}style="display:none;"{% endif %}>
+</div>
+</div>
 
-<h2>Skill Self Assessment</h2>
+<!-- ACADEMIC GAPS -->
+<div class="card">
+<h2>Academic Gaps</h2>
+
+<p style="color:#6e6e73;">
+Focus on improving these areas to grow faster.
+</p>
+
+{% for gap in output.academicGaps %}
+<div style="
+margin-bottom:15px;
+padding:12px;
+border-left:4px solid #ff9500;
+background:#fff8f0;
+border-radius:8px;
+">
+
+<strong>⚠ {{ gap.name }}</strong><br>
+
+<span style="color:#6e6e73;">
+{{ gap.description }}
+</span>
+
+</div>
+{% endfor %}
+
+</div>
+
+<!-- READINESS -->
+<div class="card">
+<h2>Career Readiness</h2>
 
 <form method="POST">
 {% csrf_token %}
 <input type="hidden" name="action" value="calculate">
 
 {% for skill in output.role1Skills %}
+<div style="margin-bottom:18px;">
+<strong>{{ skill.name }}</strong>
 
-<div style="margin-bottom:20px;">
-
-<strong>{{ skill.name }}</strong><br>
-
-<span style="color:#6e6e73;">
-{{ skill.description }}
-</span>
-
-<div>
-
-<label><input type="radio" name="{{ skill.name }}" value="0" required> Don’t know</label>
-<label><input type="radio" name="{{ skill.name }}" value="1"> Beginner</label>
-<label><input type="radio" name="{{ skill.name }}" value="2"> Intermediate</label>
-<label><input type="radio" name="{{ skill.name }}" value="3"> Advanced</label>
-
+<div style="display:flex; gap:10px; margin-top:6px; flex-wrap:wrap;">
+<label><input type="radio" name="{{ skill.name }}" value="0" required> Beginner</label>
+<label><input type="radio" name="{{ skill.name }}" value="1"> Basic</label>
+<label><input type="radio" name="{{ skill.name }}" value="2"> Good</label>
+<label><input type="radio" name="{{ skill.name }}" value="3"> Strong</label>
 </div>
-
 </div>
-
 {% endfor %}
 
-<button class="btn-primary">Evaluate Readiness</button>
+<button class="primary">Evaluate</button>
 
 </form>
-
 </div>
-
 
 {% if output.readinessScore %}
-
 <div class="card">
-
 <h2>Readiness Score</h2>
-
 <div class="score">{{ output.readinessScore }}%</div>
-
-<button class="btn-reset" onclick="showAssessment()">
-Change Skill Assessment
-</button>
-
 </div>
-
 {% endif %}
 
-
+<!-- YOUTUBE -->
 <div class="card">
-<h2>Core Skills</h2>
-
-<ul>
-{% for skill in output.role1Skills %}
-<li>
-<strong>{{ skill.name }}</strong> ({{ skill.level }}) — {{ skill.description }}
-</li>
-{% endfor %}
-</ul>
-
-</div>
-
-
-<div class="card">
-<h2>Academic Gaps Identified</h2>
-
-{% for gap in output.schoolGaps %}
-
-<div style="margin-bottom:15px;">
-<strong style="color:var(--danger);">{{ gap.name }}</strong><br>
-<span style="color:var(--muted);">{{ gap.description }}</span>
-</div>
-
-{% endfor %}
-
-</div>
-
-
-<div class="card">
-<h2>Recommended Training Modules</h2>
-
-<ul>
-{% for module in output.bridgeModules %}
-<li><strong>{{ module.name }}</strong> — {{ module.description }}</li>
-{% endfor %}
-</ul>
-
-</div>
-
-
-<div class="card">
-<h2>Curated Learning</h2>
+<h2>Recommended YouTube Channels</h2>
 
 <ul>
 {% for yt in output.youtubePlaylists %}
 <li>
-<a href="{{ yt.url }}" target="_blank" rel="noopener">
+📺 <a href="{{ yt.url }}" target="_blank">
 {{ yt.title }}
 </a>
 </li>
@@ -311,90 +216,57 @@ Change Skill Assessment
 
 </div>
 
-
+<!-- PROJECTS -->
 <div class="card">
-<h2>GitHub Project Ideas</h2>
+<h2>Project Ideas</h2>
 
-<ul>
 {% for project in output.githubProjects %}
-<li>
-<strong>{{ project.title }}</strong><br>
-{{ project.description }}<br>
-<a href="{{ project.url }}" target="_blank" rel="noopener">
-View Repository
+<div style="margin-bottom:15px;">
+<strong>💻 {{ project.title }}</strong><br>
+
+<span style="color:#6e6e73;">
+{{ project.description }}
+</span><br>
+
+<a href="{{ project.url }}" target="_blank">
+Open on GitHub →
 </a>
-</li>
+</div>
 {% endfor %}
-</ul>
 
 </div>
 
-
+<!-- INTERNSHIPS -->
 <div class="card">
-<h2>Internship Suggestions</h2>
+<h2>Internships</h2>
 
-<ul>
-{% for internship in output.internships %}
-<li>
-<strong>{{ internship.company }}</strong> – {{ internship.role }}<br>
-<a href="{{ internship.url }}" target="_blank" rel="noopener">
-Apply Here
-</a>
-</li>
+{% for i in output.internships %}
+<div style="margin-bottom:12px;">
+<strong>🧑‍💼 {{ i.company }}</strong><br>
+{{ i.role }}<br>
+
+<a href="{{ i.url }}" target="_blank">Apply →</a>
+</div>
 {% endfor %}
-</ul>
 
 </div>
 
-
+<!-- ACTIONS -->
 <div class="card">
-<h2>Salary Progression</h2>
 
-<p><strong>Entry Level:</strong> {{ output.salaryProgression.entry }}</p>
-<p><strong>Mid Level:</strong> {{ output.salaryProgression.mid }}</p>
-<p><strong>Senior Level:</strong> {{ output.salaryProgression.senior }}</p>
+<a href="/download/" class="primary">Download PDF</a>
 
-</div>
-
-
-<div class="card">
-<h2>Career Transition Advice</h2>
-
-<p>{{ output.transitionAdvice }}</p>
+<form method="POST" style="display:inline;">
+{% csrf_token %}
+<input type="hidden" name="action" value="reset">
+<button class="secondary">Try Another Plan</button>
+</form>
 
 </div>
-
-
-<div class="download-wrapper">
-
-<a href="/download/" class="download-btn">
-Download PDF Report
-</a>
-
-</div>
-
 
 {% endif %}
 
 </div>
-
-
-<script>
-
-function showAssessment(){
-
-const card = document.getElementById("assessmentCard");
-
-card.style.display = "block";
-
-window.scrollTo({
-top: card.offsetTop - 40,
-behavior: "smooth"
-});
-
-}
-
-</script>
 
 </body>
 </html>
